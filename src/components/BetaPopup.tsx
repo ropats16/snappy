@@ -13,8 +13,9 @@ export default function BetaPopup({ onClose }: BetaPopupProps) {
           Please note that currently all images are public. The developer is not
           responsible for sensitive data uploads. Due to browser issues, you may
           continue to see the camera light even after disabling the camera. We
-          are also looking into fixing this. We are looking into adding support
-          for bundling, but until then, uploads are also chargeable.
+          are also looking into fixing this but in the meantime you can close
+          the app to close the camera. We are looking into adding support for
+          bundling, but until then, uploads are also chargeable.
         </p>
         <p className="text-black mb-4 font-semibold">
           Have fun and reach out to me on{" "}

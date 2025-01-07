@@ -29,7 +29,7 @@ A camera app that uploads your photos directly to the Arweave.
 
 ### Known Issues
 
-- Due to browser limitations, the camera indicator light may remain on even after disabling the camera
+- Due to browser limitations, the camera indicator light may remain on even after disabling the camera. In the meantime you can close the app to close the camera
 - App disclaimer needs to be agreed to each time the camera is enabled
 - Some browsers may handle camera access differently
 
