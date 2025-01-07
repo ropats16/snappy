@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SnappyCam
 
-## Getting Started
+A camera app that uploads your photos directly to the Arweave.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Camera Controls
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Camera Toggle**: Enable/disable camera access using the switch in the top-left corner
+- **Camera Switch**: Toggle between front and back cameras using the button in the top-right corner
+- **Capture Button**: Large circular button in the center to take photos
+- **Gallery Access**: View your uploaded photos using the gallery icon in the bottom-left corner
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Image Management
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Review**: After capturing, review your photo before uploading
+- **Upload**: Upload your photo directly to Arweave
+- **Cancel**: Discard the captured photo and return to camera preview
+- **Gallery View**: Grid view of all your uploaded photos with expandable view
 
-## Learn More
+## Important Notes
 
-To learn more about Next.js, take a look at the following resources:
+### Beta Status
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- The app is currently in beta
+- All uploaded images are public on the Arweave
+- Uploads are chargeable as they are stored permanently on Arweave
+- Working on adding bundling support and fixing bugs
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Known Issues
 
-## Deploy on Vercel
+- Due to browser limitations, the camera indicator light may remain on even after disabling the camera
+- App disclaimer needs to be agreed to each time the camera is enabled
+- Some browsers may handle camera access differently
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Privacy & Security
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- The developer (aka me) is not responsible for sensitive data uploads
+- All images uploaded are permanent and public
+- Exercise caution when uploading personal or sensitive content
+
+## Browser Support
+
+- Intended to work in ArConnect App Store
+- Works with regular browsers too where web signing is supported
+
+## Feedback
+
+Have suggestions or found a bug? Reach out on [X/Twitter](https://x.com/ropats16/)
+
+## Technical Requirements
+
+- ArConnect extension required for uploads
+- Camera and microphone permissions required for capture
+- Stable internet connection recommended for uploads
