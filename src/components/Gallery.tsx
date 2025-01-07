@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, AlertCircle } from "lucide-react";
-import { queryUploadsFromArweave } from "../../utils/arweaveUpload";
+import { queryUploadsFromArweave } from "../../utils/arweaveUtils";
 import ExpandedImage from "./ExpandedImage";
 
 interface GalleryImage {
@@ -28,11 +28,12 @@ export default function Gallery({ onBack }: { onBack: () => void }) {
 
         // Fetch transaction IDs from Arweave
         const txIds = await queryUploadsFromArweave(address);
+        console.log(txIds);
 
         // Convert transaction IDs to image URLs
         const imageList = txIds.map((id) => ({
           id,
-          url: `https://ar-io.net/${id}`,
+          url: `https://arweave.net/${id}`,
         }));
 
         setImages(imageList);

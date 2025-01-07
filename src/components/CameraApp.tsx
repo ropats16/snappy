@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { uploadToArweave } from "../../utils/arweaveUpload";
-import { useToast } from "@/hooks/use-toast";
+import { uploadToArweave } from "../../utils/arweaveUtils";
 import Gallery from "./Gallery";
 import BetaPopup from "./BetaPopup";
 import CameraControls from "./CameraControls";
@@ -18,9 +17,10 @@ export default function CameraApp() {
   const [showGallery, setShowGallery] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [showBetaPopup, setShowBetaPopup] = useState(false);
+  const [showErrorPopup, setShowErrorPopup] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { toast } = useToast();
 
   const stopCamera = useCallback(async () => {
     console.log("stopCamera called");
@@ -61,9 +61,7 @@ export default function CameraApp() {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: facingMode,
-          aspectRatio: 4 / 3,
-          width: { ideal: 960 },
-          height: { ideal: 720 }, // 3:4 ratio means height should be 4/3 of width
+          aspectRatio: 3 / 4,
         },
       });
 
@@ -74,17 +72,13 @@ export default function CameraApp() {
       setCameraError(null);
     } catch (err) {
       console.error("Error accessing the camera", err);
-      setCameraError(
-        "Unable to access the camera. Please check your permissions."
-      );
-      toast({
-        title: "Camera Error",
-        description:
-          "Unable to access the camera. Please check your permissions.",
-        variant: "destructive",
-      });
+      const message =
+        "Unable to access the camera. Please check your permissions.";
+      setCameraError(message);
+      setErrorMessage(message);
+      setShowErrorPopup(true);
     }
-  }, [facingMode, cameraEnabled, toast]);
+  }, [facingMode, cameraEnabled]);
 
   // Handle camera enable/disable
   useEffect(() => {
@@ -112,16 +106,18 @@ export default function CameraApp() {
 
   const captureImage = useCallback(() => {
     if (videoRef.current && canvasRef.current) {
-      const context = canvasRef.current.getContext("2d");
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      const context = canvas.getContext("2d");
+
       if (context) {
-        context.drawImage(
-          videoRef.current,
-          0,
-          0,
-          canvasRef.current.width,
-          canvasRef.current.height
-        );
-        const imageDataUrl = canvasRef.current.toDataURL("image/jpeg");
+        // Match canvas size to video's display size
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        // Draw the video frame to canvas
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageDataUrl = canvas.toDataURL("image/jpeg");
         setCapturedImage(imageDataUrl);
       }
     }
@@ -135,23 +131,20 @@ export default function CameraApp() {
         const blob = await response.blob();
         const result = await uploadToArweave(blob);
         console.log("Upload successful:", result);
-        toast({
-          title: "Upload Successful",
-          description: "Your image has been uploaded to Arweave.",
-        });
         setCapturedImage(null);
+        // Restart camera after successful upload
+        if (cameraEnabled) {
+          await startCamera();
+        }
       } catch (error) {
         console.error("Upload failed:", error);
-        toast({
-          title: "Upload Failed",
-          description: "There was an error uploading your image.",
-          variant: "destructive",
-        });
+        setErrorMessage("There was an error uploading your image.");
+        setShowErrorPopup(true);
       } finally {
         setUploading(false);
       }
     }
-  }, [capturedImage, toast]);
+  }, [capturedImage, cameraEnabled, startCamera]);
 
   const switchCamera = useCallback(async () => {
     // First stop the current stream
@@ -186,29 +179,23 @@ export default function CameraApp() {
     }
   }, [cameraEnabled, startCamera]);
 
-  // Add a useEffect to handle canvas dimensions
-  useEffect(() => {
-    const updateCanvasDimensions = () => {
-      if (canvasRef.current) {
-        // Base size on screen width, maintaining 3:4 ratio
-        const width = Math.min(window.innerWidth, 720); // max width of 720px
-        const height = (width * 4) / 3; // maintain 3:4 ratio
-        canvasRef.current.width = width;
-        canvasRef.current.height = height;
-      }
-    };
-
-    // Initial setup
-    updateCanvasDimensions();
-
-    // Update on resize
-    window.addEventListener("resize", updateCanvasDimensions);
-    return () => window.removeEventListener("resize", updateCanvasDimensions);
-  }, []);
-
   return (
     <div className="relative w-full max-w-md mx-auto bg-black overflow-hidden my-4 rounded-3xl aspect-[3/4]">
       {showBetaPopup && <BetaPopup onClose={() => setShowBetaPopup(false)} />}
+      {showErrorPopup && (
+        <div className="absolute inset-0 z-10 bg-black/80 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg p-6 max-w-sm mx-auto">
+            <h2 className="text-xl font-bold mb-2">Error</h2>
+            <p className="text-gray-600 mb-4">{errorMessage}</p>
+            <button
+              className="bg-black text-white px-4 py-2 rounded"
+              onClick={() => setShowErrorPopup(false)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
 
       {!showGallery ? (
         <>
