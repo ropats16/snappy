@@ -111,13 +111,19 @@ export default function CameraApp() {
       const context = canvas.getContext("2d");
 
       if (context) {
-        // Match canvas size to video's display size
+        // Set canvas size to match video's actual dimensions
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
 
-        // Draw the video frame to canvas
+        // Clear the canvas before drawing
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw maintaining orientation and aspect ratio
+        context.save();
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const imageDataUrl = canvas.toDataURL("image/jpeg");
+        context.restore();
+
+        const imageDataUrl = canvas.toDataURL("image/jpeg", 1.0);
         setCapturedImage(imageDataUrl);
       }
     }
@@ -214,6 +220,7 @@ export default function CameraApp() {
                   src={capturedImage}
                   alt="Captured"
                   className="h-full w-full object-contain"
+                  style={{ aspectRatio: "3/4" }}
                 />
               ))}
             {cameraError && (
