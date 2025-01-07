@@ -14,7 +14,7 @@ export default function CameraApp() {
   const [facingMode, setFacingMode] = useState<"user" | "environment">(
     "environment"
   );
-  const [cameraEnabled, setCameraEnabled] = useState(false);
+  const [cameraEnabled, setCameraEnabled] = useState(true);
   const [showGallery, setShowGallery] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [showBetaPopup, setShowBetaPopup] = useState(false);
