@@ -20,6 +20,15 @@ A camera app that uploads your photos directly to the Arweave.
 
 ## Important Notes
 
+### Permissions Required
+
+The app will request permissions at different stages:
+
+- **Camera Access**: When enabling the camera toggle
+- **Wallet Access**: When viewing gallery (to fetch your uploads)
+- **Transaction Signing**: When uploading photos to Arweave
+  Each permission request requires explicit user approval for security reasons.
+
 ### Beta Status
 
 - The app is currently in beta
@@ -32,6 +41,7 @@ A camera app that uploads your photos directly to the Arweave.
 - Due to browser limitations, the camera indicator light may remain on even after disabling the camera. In the meantime you can close the app to close the camera
 - App disclaimer needs to be agreed to each time the camera is enabled
 - Some browsers may handle camera access differently
+- Permission requests may need to be re-approved when revisiting features
 
 ### Privacy & Security
 
