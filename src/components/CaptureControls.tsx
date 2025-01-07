@@ -23,7 +23,7 @@ export default function CaptureControls({
   onGalleryOpen,
 }: CaptureControlsProps) {
   return (
-    <div className="absolute bottom-8 left-4 right-4 flex justify-between items-center">
+    <div className="absolute bottom-6 left-4 right-4 flex justify-between items-center">
       <Button
         size="icon"
         variant="ghost"

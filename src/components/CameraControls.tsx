@@ -14,7 +14,7 @@ export default function CameraControls({
   onSwitchCamera,
 }: CameraControlsProps) {
   return (
-    <div className="absolute top-4 left-4 right-4 flex justify-between items-center">
+    <div className="absolute top-10 left-4 right-4 flex justify-between items-center">
       <div className="flex items-center bg-black/30 rounded-full p-1">
         <Switch
           id="camera-toggle"

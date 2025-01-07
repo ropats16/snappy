@@ -59,7 +59,12 @@ export default function CameraApp() {
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: facingMode, aspectRatio: 9 / 16 },
+        video: {
+          facingMode: facingMode,
+          aspectRatio: 4 / 3,
+          width: { ideal: 960 },
+          height: { ideal: 720 }, // 3:4 ratio means height should be 4/3 of width
+        },
       });
 
       if (videoRef.current) {
@@ -148,9 +153,16 @@ export default function CameraApp() {
     }
   }, [capturedImage, toast]);
 
-  const switchCamera = useCallback(() => {
+  const switchCamera = useCallback(async () => {
+    // First stop the current stream
+    await stopCamera();
+
+    // Update facing mode
     setFacingMode((prevMode) => (prevMode === "user" ? "environment" : "user"));
-  }, []);
+
+    // Restart camera with new facing mode
+    await startCamera();
+  }, [stopCamera, startCamera]);
 
   const cancelImage = useCallback(() => {
     setCapturedImage(null);
@@ -174,8 +186,28 @@ export default function CameraApp() {
     }
   }, [cameraEnabled, startCamera]);
 
+  // Add a useEffect to handle canvas dimensions
+  useEffect(() => {
+    const updateCanvasDimensions = () => {
+      if (canvasRef.current) {
+        // Base size on screen width, maintaining 3:4 ratio
+        const width = Math.min(window.innerWidth, 720); // max width of 720px
+        const height = (width * 4) / 3; // maintain 3:4 ratio
+        canvasRef.current.width = width;
+        canvasRef.current.height = height;
+      }
+    };
+
+    // Initial setup
+    updateCanvasDimensions();
+
+    // Update on resize
+    window.addEventListener("resize", updateCanvasDimensions);
+    return () => window.removeEventListener("resize", updateCanvasDimensions);
+  }, []);
+
   return (
-    <div className="relative w-full max-w-md mx-auto bg-black overflow-hidden my-4 rounded-3xl aspect-[9/16]">
+    <div className="relative w-full max-w-md mx-auto bg-black overflow-hidden my-4 rounded-3xl aspect-[3/4]">
       {showBetaPopup && <BetaPopup onClose={() => setShowBetaPopup(false)} />}
 
       {!showGallery ? (
@@ -205,7 +237,7 @@ export default function CameraApp() {
           </div>
 
           <h1
-            className="absolute top-4 left-0 right-0 text-center text-4xl font-bold text-white"
+            className="absolute top-10 left-0 right-0 text-center text-4xl font-bold text-white"
             style={{ fontFamily: "Lobster, cursive" }}
           >
             SnappyCam
@@ -228,12 +260,7 @@ export default function CameraApp() {
             onGalleryOpen={() => setShowGallery(true)}
           />
 
-          <canvas
-            ref={canvasRef}
-            className="hidden"
-            width={720}
-            height={1280}
-          />
+          <canvas ref={canvasRef} className="hidden" />
         </>
       ) : (
         <Gallery onBack={handleGalleryClose} />
