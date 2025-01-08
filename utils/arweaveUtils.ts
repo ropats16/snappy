@@ -11,7 +11,7 @@ import { createData, ArweaveSigner, DataItem } from "arbundles";
 import Arweave from "arweave";
 
 const arweave = new Arweave({
-  host: "ar.io",
+  host: "g8way.io",
   port: 443,
   protocol: "https",
 });
@@ -34,7 +34,7 @@ export async function uploadToArweave(file: Blob) {
         requiredPermissions,
         { name: "SnappyCam", logo: "/camera.svg" },
         {
-          host: "ar.io",
+          host: "g8way.io",
           port: 443,
           protocol: "https",
         }
@@ -121,7 +121,7 @@ export async function queryUploadsFromArweave(): Promise<string[]> {
         requiredPermissions,
         { name: "SnappyCam", logo: "/camera.svg" },
         {
-          host: "ar.io",
+          host: "g8way.io",
           port: 443,
           protocol: "https",
         }
