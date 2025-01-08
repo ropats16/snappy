@@ -62,6 +62,8 @@ export default function CameraApp() {
         video: {
           facingMode: facingMode,
           aspectRatio: 3 / 4,
+          width: 720,
+          height: 960,
         },
       });
 
@@ -142,9 +144,13 @@ export default function CameraApp() {
         if (cameraEnabled) {
           await startCamera();
         }
-      } catch (error) {
+      } catch (error: unknown) {
         console.error("Upload failed:", error);
-        setErrorMessage("There was an error uploading your image.");
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error occurred";
+        setErrorMessage(
+          `There was an error uploading your image: ${errorMessage}`
+        );
         setShowErrorPopup(true);
       } finally {
         setUploading(false);

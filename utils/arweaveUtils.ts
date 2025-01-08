@@ -11,7 +11,7 @@ import { createData, ArweaveSigner, DataItem } from "arbundles";
 import Arweave from "arweave";
 
 const arweave = new Arweave({
-  host: "ar-io.net",
+  host: "arweave.net",
   port: 443,
   protocol: "https",
 });
@@ -87,29 +87,35 @@ export async function queryUploadsFromArweave(
   appName: string = "SnappyCam"
 ): Promise<string[]> {
   try {
-    const queryObject = {
-      query: `{
-        transactions(
-          owners: ["${owner}"]
-          tags: { 
-            name: "App-Name", 
-            values: ["${appName}"]
-          }
-        ) {
-          edges {
-            node {
-              id
+    const response = await fetch("https://arweave-search.goldsky.com/graphql", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query: `{
+          transactions(
+            owners: ["${owner}"]
+            tags: { 
+              name: "App-Name", 
+              values: ["${appName}"]
+            }
+          ) {
+            edges {
+              node {
+                id
+              }
             }
           }
-        }
-      }`,
-    };
+        }`,
+      }),
+    });
 
-    const results = await arweave.api.post("/graphql", queryObject);
-
-    // Extract just the transaction IDs from the response
-    return results.data.data.transactions.edges.map(
-      (edge: { node: { id: string } }) => edge.node.id
+    const data = await response.json();
+    return (
+      data?.data?.transactions?.edges?.map(
+        (edge: { node: { id: string } }) => edge.node.id
+      ) || []
     );
   } catch (error) {
     console.error("Failed to query transactions:", error);

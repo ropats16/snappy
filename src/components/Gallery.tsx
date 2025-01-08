@@ -28,7 +28,6 @@ export default function Gallery({ onBack }: { onBack: () => void }) {
 
         // Fetch transaction IDs from Arweave
         const txIds = await queryUploadsFromArweave(address);
-        console.log(txIds);
 
         // Convert transaction IDs to image URLs
         const imageList = txIds.map((id) => ({
