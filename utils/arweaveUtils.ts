@@ -16,10 +16,25 @@ const arweave = new Arweave({
   protocol: "https",
 });
 
+type PermissionType = "SIGN_TRANSACTION" | "DISPATCH" | "ACCESS_ADDRESS";
+
 export async function uploadToArweave(file: Blob) {
   try {
     // const signer = getArweaveSigner({ jwk: false }) as ArweaveSigner;
-    await window.arweaveWallet.connect(["SIGN_TRANSACTION", "DISPATCH"]);
+    // Define required permissions array for easy modification
+    const requiredPermissions: PermissionType[] = [
+      "SIGN_TRANSACTION",
+      "DISPATCH",
+    ];
+    const currentPermissions = await window.arweaveWallet.getPermissions();
+
+    // Check if any required permissions are missing
+    const needsPermissions = requiredPermissions.some(
+      (p) => !currentPermissions.includes(p)
+    );
+    if (needsPermissions) {
+      await window.arweaveWallet.connect(requiredPermissions);
+    }
 
     // Convert Blob to ArrayBuffer
     const arrayBuffer = await file.arrayBuffer();
@@ -67,14 +82,17 @@ export async function uploadToArweave(file: Blob) {
     transaction.addTag("App-Version", "0.1.0");
     console.dir(transaction);
 
-    const res = await window.arweaveWallet.dispatch(transaction);
+    // const res = await window.arweaveWallet.dispatch(transaction);
+    await arweave.transactions.sign(transaction);
+    const res = await arweave.transactions.post(transaction);
 
-    console.log(
-      `The transaction was dispatched as a ${
-        res.type === "BUNDLED" ? "bundled" : "base layer"
-      } Arweave transaction.`
-    );
-    console.dir(res);
+    // console.log(
+    //   `The transaction was dispatched as a ${
+    //     res.type === "BUNDLED" ? "bundled" : "base layer"
+    //   } Arweave transaction.`
+    // );
+    console.log("Result of uploadToArweave", res);
+    console.log("Transaction", transaction);
     return res;
   } catch (error) {
     console.error("Failed to upload image:", error);
@@ -82,11 +100,23 @@ export async function uploadToArweave(file: Blob) {
   }
 }
 
-export async function queryUploadsFromArweave(
-  owner: string,
-  appName: string = "SnappyCam"
-): Promise<string[]> {
+const appName: string = "SnappyCam";
+
+export async function queryUploadsFromArweave(): Promise<string[]> {
   try {
+    const requiredPermissions: PermissionType[] = ["ACCESS_ADDRESS"];
+    const currentPermissions = await window.arweaveWallet.getPermissions();
+
+    // Check if any required permissions are missing
+    const needsPermissions = requiredPermissions.some(
+      (p) => !currentPermissions.includes(p)
+    );
+    if (needsPermissions) {
+      await window.arweaveWallet.connect(requiredPermissions);
+    }
+
+    const address = await window.arweaveWallet.getActiveAddress();
+
     const response = await fetch("https://arweave-search.goldsky.com/graphql", {
       method: "POST",
       headers: {
@@ -95,7 +125,7 @@ export async function queryUploadsFromArweave(
       body: JSON.stringify({
         query: `{
           transactions(
-            owners: ["${owner}"]
+            owners: ["${address}"]
             tags: { 
               name: "App-Name", 
               values: ["${appName}"]

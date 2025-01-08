@@ -22,12 +22,8 @@ export default function Gallery({ onBack }: { onBack: () => void }) {
       setLoading(true);
       setError(null);
       try {
-        // Get the current wallet address
-        await window.arweaveWallet.connect(["ACCESS_ADDRESS"]);
-        const address = await window.arweaveWallet.getActiveAddress();
-
         // Fetch transaction IDs from Arweave
-        const txIds = await queryUploadsFromArweave(address);
+        const txIds = await queryUploadsFromArweave();
 
         // Convert transaction IDs to image URLs
         const imageList = txIds.map((id) => ({
@@ -73,8 +69,13 @@ export default function Gallery({ onBack }: { onBack: () => void }) {
         >
           Gallery
         </h2>
-        <div className="w-10" /> {/* Placeholder for alignment */}
+        <div className="w-10" />
       </div>
+
+      <p className="text-gray-500 text-sm text-muted-foreground mb-4">
+        Note: New uploads may take a few minutes to appear in the gallery
+      </p>
+
       {error ? (
         <div className="flex flex-col items-center justify-center h-64 text-center">
           <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
