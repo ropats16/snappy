@@ -240,7 +240,7 @@ export default function CameraApp() {
             className="absolute top-10 left-0 right-0 text-center text-4xl font-bold text-white"
             style={{ fontFamily: "Lobster, cursive" }}
           >
-            SnappyCam
+            Snappy
           </h1>
 
           <CameraControls

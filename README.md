@@ -1,4 +1,4 @@
-# SnappyCam
+# Snappy
 
 A camera app that uploads your photos directly to the Arweave.
 

@@ -41,7 +41,7 @@ export async function uploadToArweave(file: Blob) {
     if (needsPermissions) {
       await window.arweaveWallet.connect(
         requiredPermissions,
-        { name: "SnappyCam", logo: "/camera.svg" },
+        { name: "Snappy", logo: "/camera.svg" },
         {
           host: "g8way.io",
           port: 443,
@@ -59,7 +59,7 @@ export async function uploadToArweave(file: Blob) {
     //   data: fileData,
     //   tags: [
     //     { name: "Content-Type", value: file.type },
-    //     { name: "App-Name", value: "SnappyCam" },
+    //     { name: "App-Name", value: "Snappy" },
     //     { name: "App-Version", value: "0.1.0" },
     //   ],
     // });
@@ -87,12 +87,12 @@ export async function uploadToArweave(file: Blob) {
       data: fileData,
       // tags: [
       //   { name: "Content-Type", value: file.type },
-      //   { name: "App-Name", value: "SnappyCam" },
+      //   { name: "App-Name", value: "Snappy" },
       //   { name: "App-Version", value: "0.1.0" },
       // ],
     });
     transaction.addTag("Content-Type", file.type);
-    transaction.addTag("App-Name", "SnappyCam");
+    transaction.addTag("App-Name", "Snappy");
     transaction.addTag("App-Version", "0.1.0");
     console.dir(transaction);
 
@@ -114,7 +114,7 @@ export async function uploadToArweave(file: Blob) {
   }
 }
 
-const appName: string = "SnappyCam";
+const appName: string = "Snappy";
 
 export async function queryUploadsFromArweave(): Promise<string[]> {
   try {
@@ -139,7 +139,7 @@ export async function queryUploadsFromArweave(): Promise<string[]> {
     if (needsPermissions) {
       await window.arweaveWallet.connect(
         requiredPermissions,
-        { name: "SnappyCam", logo: "/camera.svg" },
+        { name: "Snappy", logo: "/camera.svg" },
         {
           host: "g8way.io",
           port: 443,

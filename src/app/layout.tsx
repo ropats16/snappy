@@ -5,7 +5,7 @@ import { Inter } from "next/font/google";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "SnappyCam",
+  title: "Snappy",
   description: "Capture and upload images to Arweave",
   icons: {
     icon: "/camera.svg",
