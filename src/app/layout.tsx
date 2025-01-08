@@ -24,7 +24,7 @@ export default function RootLayout({
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
         />
-        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/camera.svg" sizes="any" />
         <link
           href="https://fonts.googleapis.com/css2?family=Lobster&display=swap"
           rel="stylesheet"

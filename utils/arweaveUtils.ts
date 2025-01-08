@@ -16,16 +16,13 @@ const arweave = new Arweave({
   protocol: "https",
 });
 
-type PermissionType = "SIGN_TRANSACTION" | "DISPATCH" | "ACCESS_ADDRESS";
+type PermissionType = "SIGN_TRANSACTION" | "ACCESS_ADDRESS";
 
 export async function uploadToArweave(file: Blob) {
   try {
     // const signer = getArweaveSigner({ jwk: false }) as ArweaveSigner;
     // Define required permissions array for easy modification
-    const requiredPermissions: PermissionType[] = [
-      "SIGN_TRANSACTION",
-      "DISPATCH",
-    ];
+    const requiredPermissions: PermissionType[] = ["SIGN_TRANSACTION"];
     const currentPermissions = await window.arweaveWallet.getPermissions();
 
     // Check if any required permissions are missing
@@ -112,7 +109,15 @@ export async function queryUploadsFromArweave(): Promise<string[]> {
       (p) => !currentPermissions.includes(p)
     );
     if (needsPermissions) {
-      await window.arweaveWallet.connect(requiredPermissions);
+      await window.arweaveWallet.connect(
+        requiredPermissions,
+        { name: "SnappyCam", logo: "/camera.svg" },
+        {
+          host: "ar.io",
+          port: 443,
+          protocol: "https",
+        }
+      );
     }
 
     const address = await window.arweaveWallet.getActiveAddress();
