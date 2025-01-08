@@ -16,13 +16,22 @@ const arweave = new Arweave({
   protocol: "https",
 });
 
-type PermissionType = "SIGN_TRANSACTION" | "ACCESS_ADDRESS";
+type PermissionType = "SIGN_TRANSACTION" | "DISPATCH" | "ACCESS_ADDRESS";
 
 export async function uploadToArweave(file: Blob) {
   try {
-    // const signer = getArweaveSigner({ jwk: false }) as ArweaveSigner;
-    // Define required permissions array for easy modification
-    const requiredPermissions: PermissionType[] = ["SIGN_TRANSACTION"];
+    // Check if ArConnect is installed
+    if (typeof window.arweaveWallet === "undefined") {
+      throw new Error(
+        "ArConnect wallet not found. Please install ArConnect to upload images."
+      );
+    }
+
+    const requiredPermissions: PermissionType[] = [
+      "SIGN_TRANSACTION",
+      "DISPATCH",
+      "ACCESS_ADDRESS",
+    ];
     const currentPermissions = await window.arweaveWallet.getPermissions();
 
     // Check if any required permissions are missing
@@ -87,9 +96,9 @@ export async function uploadToArweave(file: Blob) {
     transaction.addTag("App-Version", "0.1.0");
     console.dir(transaction);
 
-    // const res = await window.arweaveWallet.dispatch(transaction);
-    await arweave.transactions.sign(transaction);
-    const res = await arweave.transactions.post(transaction);
+    const res = await window.arweaveWallet.dispatch(transaction);
+    // await arweave.transactions.sign(transaction);
+    // const res = await arweave.transactions.post(transaction);
 
     // console.log(
     //   `The transaction was dispatched as a ${
@@ -109,7 +118,18 @@ const appName: string = "SnappyCam";
 
 export async function queryUploadsFromArweave(): Promise<string[]> {
   try {
-    const requiredPermissions: PermissionType[] = ["ACCESS_ADDRESS"];
+    // Check if ArConnect is installed
+    if (typeof window.arweaveWallet === "undefined") {
+      throw new Error(
+        "ArConnect wallet not found. Please install ArConnect to view your gallery."
+      );
+    }
+
+    const requiredPermissions: PermissionType[] = [
+      "SIGN_TRANSACTION",
+      "DISPATCH",
+      "ACCESS_ADDRESS",
+    ];
     const currentPermissions = await window.arweaveWallet.getPermissions();
 
     // Check if any required permissions are missing
