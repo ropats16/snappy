@@ -11,12 +11,12 @@ import { createData, ArweaveSigner, DataItem } from "arbundles";
 import Arweave from "arweave";
 
 const arweave = new Arweave({
-  host: "g8way.io",
+  host: "arweave.net",
   port: 443,
   protocol: "https",
 });
 
-type PermissionType = "SIGN_TRANSACTION" | "DISPATCH" | "ACCESS_ADDRESS";
+type PermissionType = "SIGN_TRANSACTION" | "ACCESS_ADDRESS";
 
 export async function uploadToArweave(file: Blob) {
   try {
@@ -29,7 +29,6 @@ export async function uploadToArweave(file: Blob) {
 
     const requiredPermissions: PermissionType[] = [
       "SIGN_TRANSACTION",
-      "DISPATCH",
       "ACCESS_ADDRESS",
     ];
     const currentPermissions = await window.arweaveWallet.getPermissions();
@@ -43,7 +42,7 @@ export async function uploadToArweave(file: Blob) {
         requiredPermissions,
         { name: "Snappy", logo: "/camera.svg" },
         {
-          host: "g8way.io",
+          host: "arweave.net",
           port: 443,
           protocol: "https",
         }
@@ -96,18 +95,27 @@ export async function uploadToArweave(file: Blob) {
     transaction.addTag("App-Version", "0.1.0");
     console.dir(transaction);
 
-    const res = await window.arweaveWallet.dispatch(transaction);
-    // await arweave.transactions.sign(transaction);
+    // const res = await window.arweaveWallet.dispatch(transaction);
+    await arweave.transactions.sign(transaction);
     // const res = await arweave.transactions.post(transaction);
+    // eslint-disable-next-line prefer-const
+    let uploader = await arweave.transactions.getUploader(transaction);
+
+    while (!uploader.isComplete) {
+      await uploader.uploadChunk();
+      console.log(
+        `${uploader.pctComplete}% complete, ${uploader.uploadedChunks}/${uploader.totalChunks}`
+      );
+    }
 
     // console.log(
     //   `The transaction was dispatched as a ${
     //     res.type === "BUNDLED" ? "bundled" : "base layer"
     //   } Arweave transaction.`
     // );
-    console.log("Result of uploadToArweave", res);
+    console.log("Result of uploadToArweave", uploader);
     console.log("Transaction", transaction);
-    return res;
+    return { transaction, uploader };
   } catch (error) {
     console.error("Failed to upload image:", error);
     throw error;
@@ -115,6 +123,7 @@ export async function uploadToArweave(file: Blob) {
 }
 
 const appName: string = "Snappy";
+const oldAppName: string = "SnappyCam";
 
 export async function queryUploadsFromArweave(): Promise<string[]> {
   try {
@@ -127,7 +136,6 @@ export async function queryUploadsFromArweave(): Promise<string[]> {
 
     const requiredPermissions: PermissionType[] = [
       "SIGN_TRANSACTION",
-      "DISPATCH",
       "ACCESS_ADDRESS",
     ];
     const currentPermissions = await window.arweaveWallet.getPermissions();
@@ -141,7 +149,7 @@ export async function queryUploadsFromArweave(): Promise<string[]> {
         requiredPermissions,
         { name: "Snappy", logo: "/camera.svg" },
         {
-          host: "g8way.io",
+          host: "arweave.net",
           port: 443,
           protocol: "https",
         }
@@ -161,7 +169,7 @@ export async function queryUploadsFromArweave(): Promise<string[]> {
             owners: ["${address}"]
             tags: { 
               name: "App-Name", 
-              values: ["${appName}"]
+              values: ["${appName}", "${oldAppName}"]
             }
           ) {
             edges {

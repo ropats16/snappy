@@ -30,7 +30,10 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className={`${inter.className} h-full overflow-hidden antialiased`}>
+      <body
+        className={`${inter.className} h-full overflow-hidden antialiased`}
+        suppressHydrationWarning
+      >
         {children}
       </body>
     </html>
