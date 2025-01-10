@@ -82,21 +82,29 @@ export async function uploadToArweave(file: Blob) {
     // }
 
     // const result = await response.json();
-    const transaction = await arweave.createTransaction({
-      data: fileData,
-      // tags: [
-      //   { name: "Content-Type", value: file.type },
-      //   { name: "App-Name", value: "Snappy" },
-      //   { name: "App-Version", value: "0.1.0" },
-      // ],
-    });
+    const transaction = await arweave.createTransaction(
+      {
+        data: fileData,
+        // tags: [
+        //   { name: "Content-Type", value: file.type },
+        //   { name: "App-Name", value: "Snappy" },
+        //   { name: "App-Version", value: "0.1.0" },
+        // ],
+      },
+      "use_wallet"
+    );
     transaction.addTag("Content-Type", file.type);
     transaction.addTag("App-Name", "Snappy");
     transaction.addTag("App-Version", "0.1.0");
     console.dir(transaction);
 
     // const res = await window.arweaveWallet.dispatch(transaction);
-    await arweave.transactions.sign(transaction);
+    try {
+      await arweave.transactions.sign(transaction, "use_wallet");
+    } catch (error) {
+      console.error("Failed to sign transaction:", error);
+      throw error;
+    }
     // const res = await arweave.transactions.post(transaction);
     // eslint-disable-next-line prefer-const
     let uploader = await arweave.transactions.getUploader(transaction);
