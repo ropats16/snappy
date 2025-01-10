@@ -21,6 +21,7 @@ export default function CameraApp() {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [isSwitchingCamera, setIsSwitchingCamera] = useState(false);
 
   const stopCamera = useCallback(async () => {
     console.log("stopCamera called");
@@ -62,8 +63,8 @@ export default function CameraApp() {
         video: {
           facingMode: facingMode,
           aspectRatio: 3 / 4,
-          width: 720,
-          height: 960,
+          width: { ideal: 720 },
+          height: { ideal: 960 },
         },
       });
 
@@ -159,20 +160,37 @@ export default function CameraApp() {
   }, [capturedImage, cameraEnabled, startCamera]);
 
   const switchCamera = useCallback(async () => {
-    // First stop the current stream
-    await stopCamera();
+    setIsSwitchingCamera(true);
+    try {
+      await stopCamera();
+      setFacingMode((prevMode) =>
+        prevMode === "user" ? "environment" : "user"
+      );
+      await startCamera();
 
-    // Update facing mode
-    setFacingMode((prevMode) => (prevMode === "user" ? "environment" : "user"));
-
-    // Restart camera with new facing mode
-    await startCamera();
+      // Wait for video to be ready
+      if (videoRef.current) {
+        await new Promise((resolve) => {
+          const video = videoRef.current!;
+          video.onloadeddata = () => {
+            video.play();
+            resolve(true);
+          };
+        });
+      }
+    } finally {
+      setIsSwitchingCamera(false);
+    }
   }, [stopCamera, startCamera]);
 
-  const cancelImage = useCallback(() => {
+  const cancelImage = useCallback(async () => {
     setCapturedImage(null);
-    startCamera();
-  }, [startCamera]);
+    // Wait for state update before restarting camera
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    if (cameraEnabled) {
+      await startCamera();
+    }
+  }, [startCamera, cameraEnabled]);
 
   // Add effect to handle gallery state changes
   useEffect(() => {
@@ -192,7 +210,7 @@ export default function CameraApp() {
   }, [cameraEnabled, startCamera]);
 
   return (
-    <div className="relative w-full max-w-md mx-auto bg-black overflow-hidden my-4 rounded-3xl aspect-[3/4]">
+    <div className="relative h-[100dvh] md:h-auto w-full md:max-w-md mx-auto bg-black overflow-hidden md:rounded-3xl md:aspect-[9/16]">
       {showBetaPopup && <BetaPopup onClose={() => setShowBetaPopup(false)} />}
       {showErrorPopup && (
         <div className="absolute inset-0 z-10 bg-black/80 flex items-center justify-center p-4">
@@ -208,10 +226,19 @@ export default function CameraApp() {
           </div>
         </div>
       )}
+      {isSwitchingCamera && (
+        <div className="absolute inset-0 z-20 bg-black/80 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            <p className="text-white">Switching camera...</p>
+          </div>
+        </div>
+      )}
 
       {!showGallery ? (
         <>
-          <div className="absolute inset-0 rounded-3xl overflow-hidden">
+          <div className="absolute inset-0 h-[110vw] md:h-[70%] top-1/2 -translate-y-1/2">
+            {/* <div className="absolute inset-0 h-[70%] top-1/2 -translate-y-1/2"> */}
             {cameraEnabled &&
               !cameraError &&
               (!capturedImage ? (
@@ -219,21 +246,20 @@ export default function CameraApp() {
                   ref={videoRef}
                   autoPlay
                   playsInline
-                  className="h-full w-full object-contain"
+                  className={`h-full w-full object-cover ${
+                    facingMode === "user" ? "-scale-x-100" : ""
+                  }`}
                 />
               ) : (
                 <img
                   src={capturedImage}
                   alt="Captured"
-                  className="h-full w-full object-contain"
-                  style={{ aspectRatio: "3/4" }}
+                  className={`h-full w-full object-cover ${
+                    facingMode === "user" ? "-scale-x-100" : ""
+                  }`}
                 />
               ))}
-            {cameraError && (
-              <div className="h-full w-full flex items-center justify-center bg-gray-900 text-white text-center p-4">
-                <p>{cameraError}</p>
-              </div>
-            )}
+            {/* </div> */}
           </div>
 
           <h1
@@ -247,6 +273,7 @@ export default function CameraApp() {
             cameraEnabled={cameraEnabled}
             onCameraToggle={setCameraEnabled}
             onSwitchCamera={switchCamera}
+            isSwitchingCamera={isSwitchingCamera}
           />
 
           <CaptureControls

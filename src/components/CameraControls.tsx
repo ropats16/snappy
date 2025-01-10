@@ -6,12 +6,14 @@ interface CameraControlsProps {
   cameraEnabled: boolean;
   onCameraToggle: (enabled: boolean) => void;
   onSwitchCamera: () => void;
+  isSwitchingCamera: boolean;
 }
 
 export default function CameraControls({
   cameraEnabled,
   onCameraToggle,
   onSwitchCamera,
+  isSwitchingCamera,
 }: CameraControlsProps) {
   return (
     <div className="absolute top-10 left-4 right-4 flex justify-between items-center">
@@ -27,10 +29,11 @@ export default function CameraControls({
       <Button
         size="icon"
         variant="ghost"
-        className="rounded-full w-12 h-12 bg-black/30 text-white hover:bg-black/50"
+        className={`rounded-full w-12 h-12 bg-transparent hover:bg-transparent active:bg-transparent md:hidden`}
         onClick={onSwitchCamera}
+        disabled={isSwitchingCamera}
       >
-        <RefreshCcw className="w-6 h-6" />
+        <RefreshCcw className={`w-6 h-6 text-white`} />
       </Button>
     </div>
   );

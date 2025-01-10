@@ -31,8 +31,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.className} h-full overflow-hidden antialiased`}
-        suppressHydrationWarning
+        className={`${inter.className} h-full md:py-4 bg-black antialiased`}
       >
         {children}
       </body>
